@@ -5,9 +5,12 @@
 #define PAGE_W (1 << 2)
 #define PAGE_X (1 << 3)
 #define PAGE_U (1 << 4)
-
+#define SYS_PUTCHAR 1
 #define USER_BASE 0x1000000
-
+#define VIRTIO_BLK_PADDR  0x10001000
+#define PAGE_SIZE 4096
+#define SSTATUS_SPIE (1 << 5)
+#define SCAUSE_ECALL 8
 
 
 #define PANIC(fmt, ...)                                                        \
@@ -17,8 +20,11 @@
     } while (0)
 
 
-
 #include "common.h"
+extern char __kernel_base[];
+
+struct process *idle_proc;
+struct process *current_proc;
 
 struct trap_frame {
     uint32_t ra;
@@ -54,6 +60,7 @@ struct trap_frame {
     uint32_t sp;
 } __attribute__((packed));
 
+void handle_syscall(struct trap_frame *f);
 #define READ_CSR(reg)                                                          \
     ({                                                                         \
         unsigned long __tmp;                                                   \
@@ -85,6 +92,7 @@ struct process {
     int state;
     vaddr_t sp;
     uint8_t stack[8192];
+		uint32_t *page_table;
 };
 
 

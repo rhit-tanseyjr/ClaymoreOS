@@ -1,7 +1,5 @@
 #include "user.h"
 
 void main(void) {
-
-	for(;;);
-
+	printf("hello from shell!\n");
 }
