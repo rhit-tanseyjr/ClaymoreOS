@@ -231,7 +231,7 @@ void putchar(char ch) {
     sbi_call(ch, 0, 0, 0, 0, 0, 0, 1 /* Console Putchar */);
 }
 
-long getchar(void) {
+int getchar(void) {
 		struct sbiret ret = sbi_call(0, 0, 0, 0, 0, 0, 0, 2);
 		return ret.error;
 }
@@ -248,12 +248,6 @@ void kernel_main(void) {
 		current_proc = idle_proc;
 		
 		create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
-// right after create_process returns for the shell, in kernel_main
-struct process *shell_proc = create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
-printf("shell pid=%d page_table=%x sp=%x\n", 
-    shell_proc->pid,
-    (uint32_t)shell_proc->page_table,
-    shell_proc->sp);
 
 
 		yield();
