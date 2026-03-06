@@ -1,3 +1,6 @@
+/* THIS C FILE IS DEPRICATED as of its inital commit date
+USE "kernel.c" file
+*/
 
 #include "kernel.h"
 
