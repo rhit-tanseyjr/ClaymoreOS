@@ -1,6 +1,6 @@
 #include "kernel.h"
 #include "common.h"
-
+extern char _binary_shell-bin_start[], _binary_shell_bin_size[];
 
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
@@ -17,7 +17,9 @@ struct process procs[PROCS_MAX];
 struct process *proc_a;
 struct process *proc_b;
 
-
+void user_entry(void){
+	PANIC("Not yet implemeneted");
+}
 
 struct process *create_process(uint32_t pc){
     struct process *proc = NULL;
@@ -45,7 +47,19 @@ struct process *create_process(uint32_t pc){
     *--sp = 0;
     *--sp = 0;
     *--sp = 0;
-    *--sp = (uint32_t) pc;
+    *--sp = (uint32_t) user_entry;
+		for(paddr_t paddr = (padd_t) __kernel_base;
+				paddr < (paddr_t) __free_ram_end; paddr += PAGE_SIZE) {
+			map_page(page_table, paddr, paddr, PAGE_R | PAGE_W | PAGE_X_;
+					}
+		for(uint32_t off = 0; off < image_size; off += PAGE_SIZE) {
+			paddr_t page = alloc_pages(1);
+			size_t remaining = image_size - off;
+			size_t copy_size = PAGE_SIZE <= remaining ? PAGE_SIZE : remaining;
+
+			memcpy((void *) page, image + off, copy_size);
+			map_page(page_table, USER_BASE + off, page, PAGE_U | PAGE_R | PAGE_W | PAGE_X);
+		}
 
     proc->pid = i + 1;
     proc->state = PROC_RUNNABLE;
