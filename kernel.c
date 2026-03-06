@@ -243,8 +243,16 @@ void kernel_main(void) {
 		current_proc = idle_proc;
 		
 		create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
+// right after create_process returns for the shell, in kernel_main
+struct process *shell_proc = create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
+printf("shell pid=%d page_table=%x sp=%x\n", 
+    shell_proc->pid,
+    (uint32_t)shell_proc->page_table,
+    shell_proc->sp);
+
 
 		yield();
+
 		PANIC("switched to idle process");
 
      
@@ -296,7 +304,7 @@ __attribute__((naked))
 __attribute__((aligned(4)))
 void kernel_entry(void) {
     __asm__ __volatile__(
-        "csrw sscratch, sp\n"
+        "csrrw sp, sscratch, sp\n"
         "addi sp, sp, -4 * 31\n"
         "sw ra,  4 * 0(sp)\n"
         "sw gp,  4 * 1(sp)\n"
