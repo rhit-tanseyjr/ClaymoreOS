@@ -18,7 +18,7 @@
 #define VIRTIO_DEVICE_BLK 2
 #define VIRTIO_BLK_PADDR 0x10001000
 #define VIRTIO_REG_MAGIC 0x00
-#define VIRTIO_REG_VERSION 0x03
+#define VIRTIO_REG_VERSION 0x04
 #define VIRTIO_REG_DEVICE_ID 0x08
 #define VIRTIO_REG_PAGE_SIZE 0x28
 #define VIRTIO_REG_QUEUE_SEL 0x30
@@ -75,7 +75,7 @@ struct virtio_virtq { // virtqueue struct
 	int queue_index;
 	volatile uint16_t *used_index;
 	uint16_t last_used_index;
-} __attribute__((packed);
+} __attribute__((packed));
 
 struct virtio_blk_req {
 	uint32_t type;
@@ -170,8 +170,11 @@ struct process {
 
 
 
-
-
+uint32_t virtio_reg_read32(unsigned offset);
+uint64_t virtio_reg_read64(unsigned offset);
+void virtio_reg_write32(unsigned offset, uint32_t value);
+void virtio_reg_fetch_and_or32(unsigned offset, uint32_t value);
+struct virtio_virtq *virtq_init(unsigned index);
 
 
 

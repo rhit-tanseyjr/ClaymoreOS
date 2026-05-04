@@ -1,6 +1,6 @@
+#include "common.h"
 #include "kernel.h"
 #include "user.h"
-#include "common.h"
 extern char _binary_shell_bin_start[], _binary_shell_bin_size[];
 
 typedef unsigned char uint8_t;
@@ -46,7 +46,7 @@ void virtio_blk_init(void){
 	blk_capacity = virtio_reg_read64(VIRTIO_REG_DEVICE_CONFIG + 0) * SECTOR_SIZE;
 	printf("virtio-blk: capacity is %d bytes \n", (int)blk_capacity);
 
-	blk_req_paddr = alloc_pages(align_up(sizeof(*blk_req), PAGE_SIZE / PAGE_SIZE);
+	blk_req_paddr = alloc_pages(align_up(sizeof(*blk_req), PAGE_SIZE) / PAGE_SIZE);
 	blk_req = (struct virtio_blk_req *) blk_req_paddr;
 }
 
@@ -152,7 +152,7 @@ uint64_t virtio_reg_read64(unsigned offset) {
 	return *((volatile uint64_t *) (VIRTIO_BLK_PADDR + offset));
 }
 
-void virtio_reg_write32(unsigned offest, uint32_t value) {
+void virtio_reg_write32(unsigned offset, uint32_t value) {
 	*((volatile uint32_t *) (VIRTIO_BLK_PADDR + offset)) = value;
 }
 
