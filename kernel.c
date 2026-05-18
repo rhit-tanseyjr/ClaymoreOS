@@ -41,9 +41,13 @@ void virtio_blk_init(void){
 
 	blk_request_vq = virtq_init(0);
 
+
 	virtio_reg_write32(VIRTIO_REG_DEVICE_STATUS, VIRTIO_STATUS_DRIVER_OK);
 	
 	blk_capacity = virtio_reg_read64(VIRTIO_REG_DEVICE_CONFIG + 0) * SECTOR_SIZE;
+    	ASSERT(blk_request_vq != NULL);
+	ASSERT(blk_capacity > 0);
+
 	printf("virtio-blk: capacity is %d bytes \n", (int)blk_capacity);
 
 	blk_req_paddr = alloc_pages(align_up(sizeof(*blk_req), PAGE_SIZE) / PAGE_SIZE);
@@ -64,6 +68,8 @@ __attribute__((naked)) void user_entry(void) {
 }
 
 struct process *create_process(const void *image, size_t image_size) {
+//    ASSERT(image != NULL);
+//    ASSERT(image_size != 0);
     struct process *proc = NULL;
     int i;
     for (i = 0; i < PROCS_MAX; i++) {
@@ -112,6 +118,7 @@ struct process *create_process(const void *image, size_t image_size) {
     proc->state = PROC_RUNNABLE;
     proc->sp = (uint32_t) sp;
     proc->page_table = page_table;
+//    ASSERT(proc != NULL);
     return proc;
 }
 
@@ -125,7 +132,10 @@ void delay(void){
 }
 
 void map_page(uint32_t *table1, uint32_t vaddr, paddr_t paddr, uint32_t flags){
-   if(!is_aligned(vaddr, PAGE_SIZE))
+    ASSERT(paddr % PAGE_SIZE == 0);
+    ASSERT(vaddr % PAGE_SIZE == 0);
+
+    if(!is_aligned(vaddr, PAGE_SIZE))
         PANIC("unaligned vaddr %x", vaddr);
     
     if(!is_aligned(paddr, PAGE_SIZE))
@@ -294,6 +304,7 @@ void kernel_main(void) {
 
 		virtio_blk_init();
 
+
 		idle_proc = create_process(NULL, 0);
 		
 		idle_proc->pid = 0;
@@ -327,8 +338,12 @@ void kernel_main(void) {
 struct virtio_virtq *virtq_init(unsigned index){
 	paddr_t virtq_paddr = alloc_pages(align_up(sizeof(struct virtio_virtq), PAGE_SIZE) / PAGE_SIZE);
 	struct virtio_virtq *vq = (struct virtio_virtq *) virtq_paddr;
+
+    ASSERT(virtq_paddr != 0);
 	vq->queue_index = index;
 	vq->used_index = (volatile uint16_t *) &vq->used.index;
+    ASSERT(vq != NULL);
+//    ASSERT(virtq->queue_index == index);
 
 	virtio_reg_write32(VIRTIO_REG_QUEUE_SEL, index);// SELECT queue
 	virtio_reg_write32(VIRTIO_REG_QUEUE_NUM, VIRTQ_ENTRY_NUM); // define queue size
@@ -351,6 +366,9 @@ bool virtq_is_busy(struct virtio_virtq *vq){
 }
 
 void read_write_disk(void *buf, unsigned sector, int is_write){
+    ASSERT(buf != NULL);
+    ASSERT(sector < blk_capacity / SECTOR_SIZE);
+    ASSERT(blk_req != NULL);
 	if(sector >= blk_capacity / SECTOR_SIZE) {
 		printf("virtio: tried to read / write sector=%d, but the capacity is %d\n",
 				sector, blk_capacity / SECTOR_SIZE);
@@ -389,6 +407,8 @@ void handle_trap(struct trap_frame *f) {
 }
 
 void handle_syscall(struct trap_frame *f){
+    ASSERT(f != NULL);
+    ASSERT(f->a3 == SYS_PUTCHAR || f->a3 == SYS_GETCHAR || f->a3 == SYS_EXIT);
 	switch (f->a3) {
 		case SYS_GETCHAR:
 			while (1) {
@@ -499,10 +519,11 @@ void kernel_entry(void) {
 
 
 paddr_t alloc_pages(uint32_t n){
+    ASSERT(n != 0);
     static paddr_t next_paddr = (paddr_t) __free_ram;
     paddr_t paddr = next_paddr;
     next_paddr += n * PAGE_SIZE;
-
+    
     if (next_paddr > (paddr_t) __free_ram_end) PANIC("out of memory");
 
     memset((void *) paddr, 0, n * PAGE_SIZE);

@@ -2,7 +2,7 @@
 set -e
 
 CC=clang
-CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32-unknown-elf -fuse-ld=lld -fno-stack-protector -ffreestanding -nostdlib"
+CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32-unknown-elf -fuse-ld=lld -fno-stack-protector -ffreestanding -nostdlib -DDEBUG" # remove debug flag
 OBJCOPY=llvm-objcopy
 QEMU=qemu-system-riscv32
 

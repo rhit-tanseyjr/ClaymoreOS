@@ -22,6 +22,10 @@ int strcmp(const char *s1, const char *s2){
 
 // TODO: replace with strcpy_s instead later
 char *strcpy(char *dst, const char *src){
+    ASSERT(dst != NULL);
+    ASSERT(src != NULL);
+    ASSERT(dst != src);
+
     char *d = dst;
     while(*src) *d++ = *src++;
     *d = '\0';
@@ -33,6 +37,7 @@ char *strcpy(char *dst, const char *src){
 
 
 void *memset(void *buf, char c, size_t n){
+    ASSERT(buf != NULL);
     uint8_t *p = (uint8_t *) buf;
     while (n--) *p++ = c;
     return buf;
@@ -40,6 +45,9 @@ void *memset(void *buf, char c, size_t n){
 
 
 void *memcpy(void *dst, const void *src, size_t n){
+    ASSERT(dst != NULL);
+    ASSERT(src != NULL);
+    ASSERT(n > 0);
     uint8_t *d = (uint8_t *) dst;
     const uint8_t *s = (const uint8_t *) src;
     while (n--) *d++ = *s++;
